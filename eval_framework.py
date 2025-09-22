@@ -129,7 +129,7 @@ class LocalModel(BaseModel):
                 self.model_name,
                 torch_dtype=torch.bfloat16,
                 device_map="auto",
-                quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+                quantization_config = BitsAndBytesConfig(load_in_8bit=True),
                 **kwargs
             )
             logger.info(f"Loaded local model: {self.model_name}")
@@ -387,6 +387,10 @@ class CompetitionKit:
             if not model_instance or not inference_func:
                 raise ValueError("Custom model requires 'model_instance' and 'inference_func' parameters")
             self.model = CustomModel(model_name, model_instance, inference_func)
+        elif model_type == "qwen_agent_tooluniverse":
+            # Lazy import to avoid circular dependency (agent_tooluniverse_integration imports BaseModel)
+            from agent_tooluniverse_integration import QwenAgentToolUniverseModel  # type: ignore
+            self.model = QwenAgentToolUniverseModel(model_name)
         else:
             raise ValueError(f"Unknown model type: {model_type}")
         
